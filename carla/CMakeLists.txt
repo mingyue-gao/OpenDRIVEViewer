@@ -129,7 +129,7 @@ set_target_properties(odv_fr PROPERTIES
 
 target_link_libraries(odv_fr
   PUBLIC $<BUILD_INTERFACE:CONAN_PKG::boost>
-  PRIVATE $<BUILD_INTERFACE:odv_3rdparty>
+  PUBLIC $<BUILD_INTERFACE:odv_3rdparty>
   )
 
 target_include_directories(odv_fr

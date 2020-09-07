@@ -5,5 +5,6 @@ project(odv)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
-add_subdirectory(carla)
 add_subdirectory(third-party)
+add_subdirectory(carla)
+add_subdirectory(odv)

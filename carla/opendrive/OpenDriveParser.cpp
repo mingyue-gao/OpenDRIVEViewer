@@ -21,8 +21,24 @@
 
 #include <pugixml/pugixml.hpp>
 
+#include <sstream>
+
 namespace carla {
 namespace opendrive {
+
+  boost::optional<road::Map> OpenDriveParser::LoadFile(const std::string &path) {
+    pugi::xml_document doc;
+    auto result = doc.load_file(path.c_str());
+
+    if (result == false)
+    {
+      log_error("unable to load file");
+      return {};
+    }
+    std::stringstream ss;
+    doc.save(ss);
+    return Load(ss.str());
+  }
 
   boost::optional<road::Map> OpenDriveParser::Load(const std::string &opendrive) {
     pugi::xml_document xml;

@@ -18,6 +18,8 @@ namespace opendrive {
   class OpenDriveParser {
   public:
 
+    static boost::optional<road::Map> LoadFile(const std::string &path);
+
     static boost::optional<road::Map> Load(const std::string &opendrive);
   };
 
