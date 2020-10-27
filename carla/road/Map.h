@@ -172,11 +172,13 @@ namespace road {
       return _data.GetControllers();
     }
 
-#ifdef LIBCARLA_WITH_GTEST
     MapData &GetMap() {
       return _data;
     }
-#endif // LIBCARLA_WITH_GTEST
+
+    const MapData &GetMap() const {
+      return _data;
+    }
 
 private:
 
