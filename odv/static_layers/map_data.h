@@ -3,12 +3,14 @@
 
 #include <Eigen/Eigen>
 #include <vector>
+#include "carla/geom/Mesh.h"
 
 namespace odv {
 
 struct MapData
 {
   std::vector<Eigen::Matrix3Xd> lane_boundaries;
+  carla::geom::Mesh mesh;
 };
 
 

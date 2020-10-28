@@ -78,8 +78,8 @@ public slots:
     void zoomOut();
 
 protected:
-    void paintEvent(QPaintEvent *event) override;
     void wheelEvent(QWheelEvent * event) override;
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     // boost::optional<carla::road::Map> map_;

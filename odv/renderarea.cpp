@@ -151,9 +151,6 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
 //! [9]
 
 //! [10]
-    // auto& vs = mesh_.GetVertices();
-    // auto n = vs.size();
-
     // auto& odr = map_->GetMap();
     // auto& roads = odr.GetRoads();
 
@@ -163,14 +160,16 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
     // painter.scale(0.3, 0.3);
     painter.scale(scale_, scale_);
 
+    auto& vs = map_data_.mesh.GetVertices();
+    auto n = vs.size();
 
-    // for (size_t i = 0; i < n - 2; ++i)
-    // {
-    //   const QPoint points3[3] = {QPoint(vs[i].x, vs[i].y),
-    //                              QPoint(vs[i + 1].x, vs[i + 1].y),
-    //                              QPoint(vs[i + 2].x, vs[i + 2].y)};
-    //   painter.drawPolygon(points3, 3);
-    // }
+    for (size_t i = 0; i < n - 2; ++i)
+    {
+      const QPoint points3[3] = {QPoint(vs[i].x, vs[i].y),
+                                 QPoint(vs[i + 1].x, vs[i + 1].y),
+                                 QPoint(vs[i + 2].x, vs[i + 2].y)};
+      painter.drawPolygon(points3, 3);
+    }
 
     auto& lbs = map_data_.lane_boundaries;
     QPen the_pen(Qt::white);
@@ -185,7 +184,6 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
         painter.drawLine(lb.col(i).x(), lb.col(i).y(), lb.col(i + 1).x(),
                          lb.col(i + 1).y());
       }
-      break;
     }
 
 
