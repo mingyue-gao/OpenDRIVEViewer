@@ -49,30 +49,32 @@
 ****************************************************************************/
 
 #include "renderarea.h"
+#include "carla/opendrive/OpenDriveParser.h"
 #include "carla/Memory.h"
 #include "carla/geom/Vector2D.h"
 #include "carla/road/element/Geometry.h"
 #include "carla/road/element/RoadInfoGeometry.h"
 #include "carla/road/element/RoadInfoVisitor.h"
+#include "carla/road/MeshFactory.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QPainterPath>
+#include <QtGui/QtGui>
+#include <QEvent>
+#include <QtWidgets/QtWidgets>
 #include <qnamespace.h>
 
 using namespace carla;
 using namespace carla::road;
 
 //! [0]
-RenderArea::RenderArea(const carla::road::Map& map, QWidget *parent)
+RenderArea::RenderArea(const odv::MapData& map_data, QWidget *parent)
     : QWidget(parent),
-      map_(map),
-      mesh_(map_.GenerateMesh(10.))
+      // map_{opendrive::OpenDriveParser::LoadFile(map_path)},
+      // mesh_(map_->GenerateMesh(10.)),
+      //map_data_(odv::load_map(map_path))
+      map_data_{map_data}
 {
-    shape = Polygon;
-    antialiased = false;
-    transformed = false;
-    pixmap.load(":/images/qt-logo.png");
-
     QPalette pal;
     pal.setColor(QPalette::Background, Qt::gray);
     // setBackgroundRole(QPalette::Base);
@@ -91,49 +93,34 @@ QSize RenderArea::minimumSizeHint() const
 //! [2]
 QSize RenderArea::sizeHint() const
 {
-    return QSize(1920, 1680);
+    return QSize(1920 * 2, 1680 * 2);
 }
 //! [2]
 
 //! [3]
-void RenderArea::setShape(Shape shape)
-{
-    this->shape = shape;
-    update();
-}
-//! [3]
 
-//! [4]
-void RenderArea::setPen(const QPen &pen)
+void RenderArea::zoomIn()
 {
-    this->pen = pen;
-    update();
+  scale_ += 0.1;
 }
-//! [4]
 
-//! [5]
-void RenderArea::setBrush(const QBrush &brush)
+void RenderArea::zoomOut()
 {
-    this->brush = brush;
-    update();
+  scale_ -= 0.1;
+  scale_ = std::max(1., scale_);
 }
-//! [5]
-
-//! [6]
-void RenderArea::setAntialiased(bool antialiased)
-{
-    this->antialiased = antialiased;
-    update();
-}
-//! [6]
 
 //! [7]
-void RenderArea::setTransformed(bool transformed)
+void RenderArea::wheelEvent(QWheelEvent * event)
 {
-    this->transformed = transformed;
-    update();
+  int numDegrees = event->delta() / 8;
+  int numSteps = numDegrees / 15;
+  scale_ += numSteps * 0.1;
+  scale_ = std::max(scale_, 1.);
+  event->accept();
+  update();
 }
-//! [7]
+//
 
 //! [8]
 void RenderArea::paintEvent(QPaintEvent * /* event */)
@@ -159,33 +146,50 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
 
 //! [9]
     QPainter painter(this);
-    painter.setPen(pen);
     painter.setBrush(Qt::BrushStyle::SolidPattern);
-    if (antialiased)
-        painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setRenderHint(QPainter::Antialiasing, true);
 //! [9]
 
 //! [10]
-    auto& vs = mesh_.GetVertices();
-    auto n = vs.size();
+    // auto& vs = mesh_.GetVertices();
+    // auto n = vs.size();
 
-    auto& odr = map_.GetMap();
-    auto& roads = odr.GetRoads();
+    // auto& odr = map_->GetMap();
+    // auto& roads = odr.GetRoads();
 
     painter.save();
     // painter.setBrush(Qt::SolidPattern);
     painter.translate(500, 500);
     // painter.scale(0.3, 0.3);
-    painter.scale(3., 3.);
+    painter.scale(scale_, scale_);
 
-    for (size_t i = 0; i < n - 2; ++i)
+
+    // for (size_t i = 0; i < n - 2; ++i)
+    // {
+    //   const QPoint points3[3] = {QPoint(vs[i].x, vs[i].y),
+    //                              QPoint(vs[i + 1].x, vs[i + 1].y),
+    //                              QPoint(vs[i + 2].x, vs[i + 2].y)};
+    //   painter.drawPolygon(points3, 3);
+    // }
+
+    auto& lbs = map_data_.lane_boundaries;
+    QPen the_pen(Qt::white);
+    the_pen.setWidthF(0.1);
+    painter.setPen(the_pen);
+    int i = 0; 
+    for (auto& lb : lbs)
     {
-      const QPoint points3[3] = {QPoint(vs[i].x, vs[i].y),
-                                 QPoint(vs[i + 1].x, vs[i + 1].y),
-                                 QPoint(vs[i + 2].x, vs[i + 2].y)};
-      painter.drawPolygon(points3, 3);
+      auto n = lb.cols();
+      for (int i = 0; i < n - 1; i += 2)
+      {
+        painter.drawLine(lb.col(i).x(), lb.col(i).y(), lb.col(i + 1).x(),
+                         lb.col(i + 1).y());
+      }
+      break;
     }
 
+
+    /*
     painter.setPen(QPen(Qt::white));
     for (auto& r : roads)
     {
@@ -267,6 +271,8 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
         }
       }
     }
+    */
+
     painter.restore();
     /*
     for (int x = 0; x < width(); x += 100) {

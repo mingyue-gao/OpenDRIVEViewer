@@ -52,11 +52,15 @@
 #define RENDERAREA_H
 
 #include "carla/road/Map.h"
+#include "static_layers/map_data.h"
 
 #include <QtGui/QBrush>
 #include <QtGui/QPen>
 #include <QtGui/QPixmap>
 #include <QtWidgets/QWidget>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QMainWindow>
+#include <memory>
 
 //! [0]
 class RenderArea : public QWidget
@@ -64,33 +68,25 @@ class RenderArea : public QWidget
     Q_OBJECT
 
 public:
-    enum Shape { Line, Points, Polyline, Polygon, Rect, RoundedRect, Ellipse, Arc,
-                 Chord, Pie, Path, Text, Pixmap };
-
-    explicit RenderArea(const carla::road::Map& map, QWidget *parent = nullptr);
+    explicit RenderArea(const odv::MapData& map_data, QWidget* parent = nullptr);
 
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
 
 public slots:
-    void setShape(Shape shape);
-    void setPen(const QPen &pen);
-    void setBrush(const QBrush &brush);
-    void setAntialiased(bool antialiased);
-    void setTransformed(bool transformed);
+    void zoomIn();
+    void zoomOut();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void wheelEvent(QWheelEvent * event) override;
 
 private:
-  const carla::road::Map &map_;
-  carla::geom::Mesh mesh_;
-  Shape shape;
-  QPen pen;
-  QBrush brush;
-  bool antialiased;
-  bool transformed;
-  QPixmap pixmap;
+    // boost::optional<carla::road::Map> map_;
+    // carla::geom::Mesh mesh_;
+  const odv::MapData& map_data_;
+  
+  double scale_ = 1.;
 };
 //! [0]
 

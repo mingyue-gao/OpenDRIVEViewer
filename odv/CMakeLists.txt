@@ -20,9 +20,12 @@ set_target_properties(odv_viewer PROPERTIES
 
 target_link_libraries(odv_viewer
   PRIVATE $<BUILD_INTERFACE:odv_fr>
+  PRIVATE $<BUILD_INTERFACE:static_layers>
   PRIVATE $<BUILD_INTERFACE:Qt5::Widgets>
   )
 
 target_include_directories(odv_viewer
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../third-party>
   )
+
+add_subdirectory(static_layers)

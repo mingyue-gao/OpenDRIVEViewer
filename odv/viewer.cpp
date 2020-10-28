@@ -1,4 +1,5 @@
 #include "carla/opendrive/OpenDriveParser.h"
+#include "static_layers/map_data.h"
 
 #include "renderarea.h"
 
@@ -18,9 +19,11 @@ int main(int argc, char** argv)
     std::cout << "Missing map\n";
     return -1;
   }
-  auto odr = opendrive::OpenDriveParser::LoadFile(argv[1]);
+  std::string map_path(argv[1]);
+  auto map_data = odv::load_map(map_path);
+  // auto odr = opendrive::OpenDriveParser::LoadFile(argv[1]);
   QApplication app(argc, argv);
-  RenderArea renderArea(*odr);
+  RenderArea renderArea(map_data);
   renderArea.show();
   return app.exec();
 }
