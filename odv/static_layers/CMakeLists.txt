@@ -15,4 +15,5 @@ target_link_libraries(static_layers
   PUBLIC $<BUILD_INTERFACE:odv_fr>
   PUBLIC $<BUILD_INTERFACE:CONAN_PKG::eigen>
   PRIVATE $<BUILD_INTERFACE:CONAN_PKG::boost>
+  PUBLIC $<BUILD_INTERFACE:Qt5::Widgets>
   )

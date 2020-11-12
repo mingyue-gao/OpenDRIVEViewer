@@ -55,24 +55,26 @@ MapData load_map(const std::string& map_path)
         // std::cout << "printing " << l.GetId() << ", " << n << std::endl;
         assert(n % 2 == 0);
         int step = 2;
-        Eigen::Matrix3Xd lb(3, n / step);
+        std::vector<QPointF> lb(n / step);
+        // Eigen::Matrix3Xd lb(3, n / step);
         std::size_t i = l.GetId() < 0 ? 0 : 1;
         for (; i < n; i += step)
         {
           const auto& v = vertices[i];
-          lb.col(i / step) = Eigen::Vector3d{v.x, v.y, v.z};
+          lb[i / step] = QPointF{v.x, v.y};
         }
-        std::cout << "printing " << l.GetId() << ", " << n << ", " << lb.cols() << std::endl;
+        std::cout << "printing " << l.GetId() << ", " << n << ", " << lb.size() << std::endl;
         map_data.lane_boundaries.push_back(lb);
 
         if (l.GetId() == -1)
         {
+          std::vector<QPointF> mlb(n / step);
           for (std::size_t i = 1; i < n; i += step)
           {
             const auto& v = vertices[i];
-            lb.col(i / step) = Eigen::Vector3d{v.x, v.y, v.z};
+            mlb[i / step] = QPointF{v.x, v.y};
           }
-          map_data.lane_boundaries.push_back(lb);
+          map_data.lane_boundaries.push_back(mlb);
         }
       }
     }

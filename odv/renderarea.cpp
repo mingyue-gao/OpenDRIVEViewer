@@ -160,16 +160,18 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
     // painter.scale(0.3, 0.3);
     painter.scale(scale_, scale_);
 
-    auto& vs = map_data_.mesh.GetVertices();
-    auto n = vs.size();
+    //// Draw meshes
+    // auto& vs = map_data_.mesh.GetVertices();
+    // auto n = vs.size();
 
-    for (size_t i = 0; i < n - 2; ++i)
-    {
-      const QPoint points3[3] = {QPoint(vs[i].x, vs[i].y),
-                                 QPoint(vs[i + 1].x, vs[i + 1].y),
-                                 QPoint(vs[i + 2].x, vs[i + 2].y)};
-      painter.drawPolygon(points3, 3);
-    }
+    // for (size_t i = 0; i < n - 2; ++i)
+    // {
+    //   const QPoint points3[3] = {QPoint(vs[i].x, vs[i].y),
+    //                              QPoint(vs[i + 1].x, vs[i + 1].y),
+    //                              QPoint(vs[i + 2].x, vs[i + 2].y)};
+    //   painter.drawPolygon(points3, 3);
+    // }
+    //// Draw meshes DONE
 
     auto& lbs = map_data_.lane_boundaries;
     QPen the_pen(Qt::white);
@@ -178,15 +180,15 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
     painter.setPen(the_pen);
     for (auto& lb : lbs)
     {
-      auto n = lb.cols();
-      std::vector<QPointF> points(n);
-      for (int i = 0; i < n; ++i)
-      {
-        points[i].setX(lb.col(i).x());
-        points[i].setY(lb.col(i).y());
-      }
+      // auto n = lb.cols();
+      // std::vector<QPointF> points(n);
+      // for (int i = 0; i < n; ++i)
+      // {
+      //   points[i].setX(lb.col(i).x());
+      //   points[i].setY(lb.col(i).y());
+      // }
 
-      painter.drawPolyline(points.data(), points.size());
+      painter.drawPolyline(lb.data(), lb.size());
     }
 
 
