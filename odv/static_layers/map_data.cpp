@@ -1,6 +1,8 @@
 #include "map_data.h"
 
 #include "carla/opendrive/OpenDriveParser.h"
+#include "carla/road/Lane.h"
+#include "carla/road/LaneSection.h"
 #include "carla/road/Map.h"
 #include "carla/road/MeshFactory.h"
 
@@ -39,16 +41,22 @@ MapData load_map(const std::string& map_path)
 
   for (const auto& r : odr_data.GetRoads())
   {
-    // if (r.first != 514)
-    //   continue;
+    if (r.first != 508)
+      continue;
 
     for (const auto& ls : r.second.GetLaneSections())
     {
       for (const auto& l_pair : ls.GetLanes())
       {
         const auto& l = l_pair.second;
-        if (!l.IsStraight())
+        std::cout << l.GetId() << ": " << (int)l.GetType() << std::endl;
+        if (l.GetType() != road::Lane::LaneType::Driving)
           continue;
+
+        if (l.GetId() == 0)
+          continue;
+
+        std::cout << "printing " << l.GetId() << std::endl;
 
         const auto lane_meshes = mesh_factory.Generate(l);
         const auto& vertices = lane_meshes->GetVertices();

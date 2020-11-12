@@ -1,0 +1,26 @@
+# We'll use defaults from the LLVM style, but with 4 columns indentation.
+BasedOnStyle: Google
+IndentWidth: 2
+---
+Language: Cpp
+# Force pointers to the type for C++.
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+BreakBeforeBraces: Custom
+BraceWrapping: 
+  AfterClass:      true
+  AfterEnum:       true
+  AfterFunction:   true
+  AfterNamespace:  false
+  AfterObjCDeclaration: true
+  AfterStruct:     true
+  AfterUnion:      true
+  AfterControlStatement: true
+  BeforeCatch:     false
+  BeforeElse:      true
+
+---
+Language: Proto
+# Don't format .proto files.
+DisableFormat: true

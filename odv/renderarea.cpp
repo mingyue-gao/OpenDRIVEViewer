@@ -147,7 +147,7 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
 //! [9]
     QPainter painter(this);
     painter.setBrush(Qt::BrushStyle::SolidPattern);
-    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setRenderHint(QPainter::Antialiasing, false);
 //! [9]
 
 //! [10]
@@ -173,17 +173,20 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
 
     auto& lbs = map_data_.lane_boundaries;
     QPen the_pen(Qt::white);
-    the_pen.setWidthF(0.1);
+    the_pen.setWidthF(0.5);
+    the_pen.setStyle(Qt::PenStyle::DashLine);
     painter.setPen(the_pen);
-    int i = 0; 
     for (auto& lb : lbs)
     {
       auto n = lb.cols();
-      for (int i = 0; i < n - 1; i += 2)
+      std::vector<QPointF> points(n);
+      for (int i = 0; i < n; ++i)
       {
-        painter.drawLine(lb.col(i).x(), lb.col(i).y(), lb.col(i + 1).x(),
-                         lb.col(i + 1).y());
+        points[i].setX(lb.col(i).x());
+        points[i].setY(lb.col(i).y());
       }
+
+      painter.drawPolyline(points.data(), points.size());
     }
 
 

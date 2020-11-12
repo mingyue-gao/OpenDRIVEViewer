@@ -45,7 +45,6 @@ namespace geom {
   std::unique_ptr<Mesh> MeshFactory::Generate(const road::Lane &lane) const {
     const double s_start = lane.GetDistance() + EPSILON;
     const double s_end = lane.GetDistance() + lane.GetLength() - EPSILON;
-    std::cout << lane.GetRoad()->GetId() << ":" <<  s_start << ", " << s_end << std::endl;
     return Generate(lane, s_start, s_end);
   }
 
@@ -65,14 +64,12 @@ namespace geom {
 
     std::vector<geom::Vector3D> vertices;
     if (lane.IsStraight()) {
-      std::cout << "straight" << std::endl;
       // Mesh optimization: If the lane is straight just add vertices at the
       // begining and at the end of it
       const auto edges = lane.GetCornerPositions(s_current, road_param.extra_lane_width);
       vertices.push_back(edges.first);
       vertices.push_back(edges.second);
     } else {
-      std::cout << "not straight" << std::endl;
       // Iterate over the lane's 's' and store the vertices based on it's width
       do {
         // Get the location of the edges of the current lane at the current waypoint
