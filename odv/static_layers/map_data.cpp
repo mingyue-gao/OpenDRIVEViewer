@@ -41,35 +41,39 @@ MapData load_map(const std::string& map_path)
 
   for (const auto& r : odr_data.GetRoads())
   {
-    if (r.first != 508)
-      continue;
-
     for (const auto& ls : r.second.GetLaneSections())
     {
       for (const auto& l_pair : ls.GetLanes())
       {
         const auto& l = l_pair.second;
-        std::cout << l.GetId() << ": " << (int)l.GetType() << std::endl;
         if (l.GetType() != road::Lane::LaneType::Driving)
           continue;
-
-        if (l.GetId() == 0)
-          continue;
-
-        std::cout << "printing " << l.GetId() << std::endl;
 
         const auto lane_meshes = mesh_factory.Generate(l);
         const auto& vertices = lane_meshes->GetVertices();
         auto n = vertices.size();
+        // std::cout << "printing " << l.GetId() << ", " << n << std::endl;
         assert(n % 2 == 0);
         int step = 2;
         Eigen::Matrix3Xd lb(3, n / step);
-        for (std::size_t i = 0; i < n; i += step)
+        std::size_t i = l.GetId() < 0 ? 0 : 1;
+        for (; i < n; i += step)
         {
           const auto& v = vertices[i];
           lb.col(i / step) = Eigen::Vector3d{v.x, v.y, v.z};
         }
+        std::cout << "printing " << l.GetId() << ", " << n << ", " << lb.cols() << std::endl;
         map_data.lane_boundaries.push_back(lb);
+
+        if (l.GetId() == -1)
+        {
+          for (std::size_t i = 1; i < n; i += step)
+          {
+            const auto& v = vertices[i];
+            lb.col(i / step) = Eigen::Vector3d{v.x, v.y, v.z};
+          }
+          map_data.lane_boundaries.push_back(lb);
+        }
       }
     }
   }
