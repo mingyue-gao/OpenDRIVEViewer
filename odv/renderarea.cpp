@@ -56,6 +56,7 @@
 #include "carla/road/element/RoadInfoGeometry.h"
 #include "carla/road/element/RoadInfoVisitor.h"
 #include "carla/road/MeshFactory.h"
+#include "odv/static_layers/map_data.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QPainterPath>
@@ -162,6 +163,7 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
     // }
     //// Draw meshes DONE
 
+    // Draw meshes
     auto& lbs = map_data_.lane_boundaries;
     for (auto& l : map_data_.lanes)
     {
@@ -177,51 +179,79 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
       }
     }
 
-    QPen the_pen(Qt::white);
-    the_pen.setStyle(Qt::PenStyle::SolidLine);
-    painter.setPen(the_pen);
+    // Draw lane markings
+    for (auto& lb : map_data_.lane_boundaries)
+    {
+      QPen the_pen(Qt::white);
+      the_pen.setStyle(Qt::PenStyle::SolidLine);
+      the_pen.setWidthF(0.13);
+      if (!lb.road_marks.empty())
+      {
+        auto rm = lb.road_marks.front();
+        the_pen.setWidthF(rm.width);
+        if (rm.type != odv::MarkType::None)
+        {
+          if (rm.type != odv::MarkType::Solid)
+          {
+            the_pen.setStyle(Qt::PenStyle::CustomDashLine);
+            the_pen.setDashPattern({scale_, scale_});
+          }
+          painter.setPen(the_pen);
+          painter.drawPolyline(lb.points.data(), lb.points.size());
+        }
+      }
+    }
+
+    /*
     for (auto& l : map_data_.lanes)
     {
+      QPen the_pen(Qt::white);
+      the_pen.setStyle(Qt::PenStyle::SolidLine);
+      the_pen.setWidthF(0.13);
+      painter.setPen(the_pen);
       auto& llb = map_data_.lane_boundaries[l.right_boundary];
       auto& rlb = map_data_.lane_boundaries[l.left_boundary];
       if (!llb.road_marks.empty())
       {
         auto rm = llb.road_marks.front();
         the_pen.setWidthF(rm.width);
-        the_pen.setStyle(rm.type == odv::MarkType::Broken
-                             ? Qt::PenStyle::DashLine
-                             : Qt::PenStyle::SolidLine);
-        the_pen.setDashPattern({scale_, scale_});
+        if (rm.type != odv::MarkType::None && rm.type != odv::MarkType::Solid)
+        {
+          the_pen.setStyle(Qt::PenStyle::CustomDashLine);
+          the_pen.setDashPattern({scale_, scale_});
+        }
         painter.setPen(the_pen);
         painter.drawPolyline(llb.points.data(), llb.points.size());
       }
-      else
-      {
-        the_pen.setStyle(Qt::PenStyle::SolidLine);
-        the_pen.setWidthF(0.13);
-        painter.setPen(the_pen);
-        painter.drawPolyline(llb.points.data(), llb.points.size());
-      }
+      // else
+      // {
+      //   the_pen.setStyle(Qt::PenStyle::SolidLine);
+      //   the_pen.setWidthF(0.13);
+      //   painter.setPen(the_pen);
+      //   painter.drawPolyline(llb.points.data(), llb.points.size());
+      // }
 
       if (!rlb.road_marks.empty())
       {
         auto rm = rlb.road_marks.front();
         the_pen.setWidthF(rm.width);
-        the_pen.setStyle(rm.type == odv::MarkType::Broken
-                             ? Qt::PenStyle::DashLine
-                             : Qt::PenStyle::SolidLine);
-        the_pen.setDashPattern({scale_, scale_});
+        if (rm.type != odv::MarkType::None && rm.type != odv::MarkType::Solid)
+        {
+          the_pen.setStyle(Qt::PenStyle::CustomDashLine);
+          the_pen.setDashPattern({scale_, scale_});
+        }
         painter.setPen(the_pen);
         painter.drawPolyline(rlb.points.data(), rlb.points.size());
       }
-      else
-      {
-        the_pen.setWidthF(0.13);
-        the_pen.setStyle(Qt::PenStyle::SolidLine);
-        painter.setPen(the_pen);
-        painter.drawPolyline(rlb.points.data(), rlb.points.size());
-      }
+      // else
+      // {
+      //   the_pen.setWidthF(0.13);
+      //   the_pen.setStyle(Qt::PenStyle::SolidLine);
+      //   painter.setPen(the_pen);
+      //   painter.drawPolyline(rlb.points.data(), rlb.points.size());
+      // }
     }
+    */
 
     painter.restore();
     painter.setRenderHint(QPainter::Antialiasing, false);

@@ -51,10 +51,13 @@ MapData load_map(const std::string& map_path)
       {
         const auto& l = l_pair.second;
         if (l.GetId() == 0)
+        {
+          std::cout << r.first << ", " << l.GetId() << std::endl;
           continue;
+        }
 
-        if (l.GetType() != road::Lane::LaneType::Driving)
-          continue;
+        // if (l.GetType() != road::Lane::LaneType::Driving)
+        //   continue;
 
         const auto lane_meshes = mesh_factory.Generate(l);
         const auto& vertices = lane_meshes->GetVertices();
@@ -69,18 +72,17 @@ MapData load_map(const std::string& map_path)
           lb.points.emplace_back(v.x, v.y);
         }
         // std::cout << "printing " << l.GetId() << ", " << n << ", " << points.size() << std::endl;
-        map_data.lane_boundaries.push_back(lb);
-
         auto marks = l.GetInfos<carla::road::element::RoadInfoMarkRecord>();
         for (auto& mark : marks)
         {
           carla::road::element::LaneMarking lm{*mark};
           RoadMark rm{lm.type, lm.color, lm.width};
-
           lb.road_marks.push_back(rm);
-          // std::cout << r.first << "-" << l.GetId() << ": " << mark->GetType() << ", " << lm.width << std::endl;
+          std::cout << r.first << " " << l.GetId() << ": " << mark->GetType()
+                    << ", " << lm.width << std::endl;
           break;
         }
+        map_data.lane_boundaries.push_back(lb);
 
         // add bounary for id = 0
         if (l.GetId() == -1)
@@ -95,12 +97,10 @@ MapData load_map(const std::string& map_path)
           for (auto& mark : marks)
           {
             carla::road::element::LaneMarking lm{*mark};
-            // mlb.road_marks.push_back(
-            //     RoadMark{MarkType::Broken, MarkColor::White, lm.width});
             RoadMark rm{MarkType::Broken, MarkColor::White, lm.width};
             mlb.road_marks.push_back(rm);
-            // std::cout << r.first << "-" << 0 << ": " << mark->GetType() << ", "
-            //           << lm.width << std::endl;
+            std::cout << r.first << " " << 0 << ": " << mark->GetType()
+                      << ", " << lm.width << std::endl;
             break;
           }
           map_data.lane_boundaries.push_back(mlb);
@@ -113,8 +113,8 @@ MapData load_map(const std::string& map_path)
         if (l.GetId() == 0)
           continue;
 
-        if (l.GetType() != road::Lane::LaneType::Driving)
-          continue;
+        // if (l.GetType() != road::Lane::LaneType::Driving)
+        //   continue;
 
         Lane the_lane;
         auto right_idx = lb_idx;
