@@ -3,6 +3,7 @@
 
 #include <Eigen/Eigen>
 #include <QPointF>
+#include <QVector>
 #include <vector>
 #include "carla/geom/Mesh.h"
 #include "carla/road/element/LaneMarking.h"
@@ -16,10 +17,10 @@ using MarkType = carla::road::element::LaneMarking::Type;
 
 struct RoadMark
 {
-  double s_offset = 0.;
-  double width;
   MarkType type;
   MarkColor color;
+  double width;
+  double s_offset = 0.;
 };
 
 struct Boundary

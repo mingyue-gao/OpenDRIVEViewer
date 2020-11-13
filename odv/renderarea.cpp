@@ -178,19 +178,49 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
     }
 
     QPen the_pen(Qt::white);
-    the_pen.setWidthF(0.5);
-    the_pen.setStyle(Qt::PenStyle::DashLine);
+    the_pen.setStyle(Qt::PenStyle::SolidLine);
     painter.setPen(the_pen);
-    // for (auto& lb : lbs)
-    // {
-    //   painter.drawPolyline(lb.data(), lb.size());
-    // }
     for (auto& l : map_data_.lanes)
     {
       auto& llb = map_data_.lane_boundaries[l.right_boundary];
       auto& rlb = map_data_.lane_boundaries[l.left_boundary];
-      painter.drawPolyline(llb.points.data(), llb.points.size());
-      painter.drawPolyline(rlb.points.data(), rlb.points.size());
+      if (!llb.road_marks.empty())
+      {
+        auto rm = llb.road_marks.front();
+        the_pen.setWidthF(rm.width);
+        the_pen.setStyle(rm.type == odv::MarkType::Broken
+                             ? Qt::PenStyle::DashLine
+                             : Qt::PenStyle::SolidLine);
+        the_pen.setDashPattern({scale_, scale_});
+        painter.setPen(the_pen);
+        painter.drawPolyline(llb.points.data(), llb.points.size());
+      }
+      else
+      {
+        the_pen.setStyle(Qt::PenStyle::SolidLine);
+        the_pen.setWidthF(0.13);
+        painter.setPen(the_pen);
+        painter.drawPolyline(llb.points.data(), llb.points.size());
+      }
+
+      if (!rlb.road_marks.empty())
+      {
+        auto rm = rlb.road_marks.front();
+        the_pen.setWidthF(rm.width);
+        the_pen.setStyle(rm.type == odv::MarkType::Broken
+                             ? Qt::PenStyle::DashLine
+                             : Qt::PenStyle::SolidLine);
+        the_pen.setDashPattern({scale_, scale_});
+        painter.setPen(the_pen);
+        painter.drawPolyline(rlb.points.data(), rlb.points.size());
+      }
+      else
+      {
+        the_pen.setWidthF(0.13);
+        the_pen.setStyle(Qt::PenStyle::SolidLine);
+        painter.setPen(the_pen);
+        painter.drawPolyline(rlb.points.data(), rlb.points.size());
+      }
     }
 
     painter.restore();

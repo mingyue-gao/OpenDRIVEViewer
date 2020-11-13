@@ -7,6 +7,7 @@
 #include "carla/road/Map.h"
 #include "carla/road/MeshFactory.h"
 #include "carla/road/element/LaneMarking.h"
+#include "carla/road/element/RoadInfoMarkRecord.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -61,28 +62,46 @@ MapData load_map(const std::string& map_path)
         assert(n % 2 == 0);
         int step = 2;
         Boundary lb;
-        // std::vector<QPointF> points(n / step);
         std::size_t i = l.GetId() < 0 ? 0 : 1;
         for (; i < n; i += step)
         {
           const auto& v = vertices[i];
           lb.points.emplace_back(v.x, v.y);
-          // points[i / step] = QPointF{v.x, v.y};
         }
         // std::cout << "printing " << l.GetId() << ", " << n << ", " << points.size() << std::endl;
         map_data.lane_boundaries.push_back(lb);
 
-        // auto lms = l.GetInfos<carla::road::element::LaneMarking>();
-        // lms.back()->
+        auto marks = l.GetInfos<carla::road::element::RoadInfoMarkRecord>();
+        for (auto& mark : marks)
+        {
+          carla::road::element::LaneMarking lm{*mark};
+          RoadMark rm{lm.type, lm.color, lm.width};
+
+          lb.road_marks.push_back(rm);
+          // std::cout << r.first << "-" << l.GetId() << ": " << mark->GetType() << ", " << lm.width << std::endl;
+          break;
+        }
+
+        // add bounary for id = 0
         if (l.GetId() == -1)
         {
           Boundary mlb;
-          // std::vector<QPointF> mlb(n / step);
           for (std::size_t i = 1; i < n; i += step)
           {
             const auto& v = vertices[i];
             mlb.points.emplace_back(v.x, v.y);
-            // mlb[i / step] = QPointF{v.x, v.y};
+          }
+          // hard coded for center line
+          for (auto& mark : marks)
+          {
+            carla::road::element::LaneMarking lm{*mark};
+            // mlb.road_marks.push_back(
+            //     RoadMark{MarkType::Broken, MarkColor::White, lm.width});
+            RoadMark rm{MarkType::Broken, MarkColor::White, lm.width};
+            mlb.road_marks.push_back(rm);
+            // std::cout << r.first << "-" << 0 << ": " << mark->GetType() << ", "
+            //           << lm.width << std::endl;
+            break;
           }
           map_data.lane_boundaries.push_back(mlb);
         }
