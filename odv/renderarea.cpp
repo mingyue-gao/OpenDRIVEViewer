@@ -165,13 +165,12 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
     auto& lbs = map_data_.lane_boundaries;
     for (auto& l : map_data_.lanes)
     {
-      auto n = l.meshes.size();
-      for (std::size_t i = 0; i < n - 2; ++i)
+      auto& vs = l.vertices;
+      for (std::size_t i = 0; i < vs.size() - 2; ++i)
       {
-        auto& mshs = l.meshes;
-        auto& p1 = lbs[mshs[i].first][mshs[i].second];
-        auto& p2 = lbs[mshs[i + 1].first][mshs[i + 1].second];
-        auto& p3 = lbs[mshs[i + 2].first][mshs[i + 2].second];
+        auto& p1 = lbs[vs[i].first].points[vs[i].second];
+        auto& p2 = lbs[vs[i + 1].first].points[vs[i + 1].second];
+        auto& p3 = lbs[vs[i + 2].first].points[vs[i + 2].second];
 
         const QPointF points3[3] = {p1, p2, p3};
         painter.drawPolygon(points3, 3);
@@ -190,8 +189,8 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
     {
       auto& llb = map_data_.lane_boundaries[l.right_boundary];
       auto& rlb = map_data_.lane_boundaries[l.left_boundary];
-      painter.drawPolyline(llb.data(), llb.size());
-      painter.drawPolyline(rlb.data(), rlb.size());
+      painter.drawPolyline(llb.points.data(), llb.points.size());
+      painter.drawPolyline(rlb.points.data(), rlb.points.size());
     }
 
     painter.restore();

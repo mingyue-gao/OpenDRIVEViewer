@@ -1,10 +1,12 @@
 #include "map_data.h"
 
+#include "carla/Exception.h"
 #include "carla/opendrive/OpenDriveParser.h"
 #include "carla/road/Lane.h"
 #include "carla/road/LaneSection.h"
 #include "carla/road/Map.h"
 #include "carla/road/MeshFactory.h"
+#include "carla/road/element/LaneMarking.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -58,23 +60,29 @@ MapData load_map(const std::string& map_path)
         auto n = vertices.size();
         assert(n % 2 == 0);
         int step = 2;
-        std::vector<QPointF> lb(n / step);
+        Boundary lb;
+        // std::vector<QPointF> points(n / step);
         std::size_t i = l.GetId() < 0 ? 0 : 1;
         for (; i < n; i += step)
         {
           const auto& v = vertices[i];
-          lb[i / step] = QPointF{v.x, v.y};
+          lb.points.emplace_back(v.x, v.y);
+          // points[i / step] = QPointF{v.x, v.y};
         }
-        std::cout << "printing " << l.GetId() << ", " << n << ", " << lb.size() << std::endl;
+        // std::cout << "printing " << l.GetId() << ", " << n << ", " << points.size() << std::endl;
         map_data.lane_boundaries.push_back(lb);
 
+        // auto lms = l.GetInfos<carla::road::element::LaneMarking>();
+        // lms.back()->
         if (l.GetId() == -1)
         {
-          std::vector<QPointF> mlb(n / step);
+          Boundary mlb;
+          // std::vector<QPointF> mlb(n / step);
           for (std::size_t i = 1; i < n; i += step)
           {
             const auto& v = vertices[i];
-            mlb[i / step] = QPointF{v.x, v.y};
+            mlb.points.emplace_back(v.x, v.y);
+            // mlb[i / step] = QPointF{v.x, v.y};
           }
           map_data.lane_boundaries.push_back(mlb);
         }
@@ -98,14 +106,14 @@ MapData load_map(const std::string& map_path)
         auto& lane_bs = map_data.lane_boundaries;
         auto& right_b = lane_bs[right_idx];
         auto& left_b = lane_bs[left_idx];
-        auto n = right_b.size();
-        std::vector<std::pair<idx_t, idx_t>> lane_meshes;
+        auto n = right_b.points.size();
+        std::vector<std::pair<idx_t, idx_t>> vertices;
         for (std::size_t i = 0; i < n; ++i)
         {
-          lane_meshes.emplace_back(right_idx, i);
-          lane_meshes.emplace_back(left_idx, i);
+          vertices.emplace_back(right_idx, i);
+          vertices.emplace_back(left_idx, i);
         }
-        the_lane.meshes = lane_meshes;
+        the_lane.vertices = vertices;
 
         assert(lb_idx + 1 < map_data.lane_boundaries.size());
         ++lb_idx;

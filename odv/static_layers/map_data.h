@@ -5,26 +5,39 @@
 #include <QPointF>
 #include <vector>
 #include "carla/geom/Mesh.h"
+#include "carla/road/element/LaneMarking.h"
 
 namespace odv {
 
 using idx_t = std::size_t;
 
+using MarkColor = carla::road::element::LaneMarking::Color;
+using MarkType = carla::road::element::LaneMarking::Type;
+
+struct RoadMark
+{
+  double s_offset = 0.;
+  double width;
+  MarkType type;
+  MarkColor color;
+};
+
 struct Boundary
 {
-
+  std::vector<QPointF> points;
+  std::vector<RoadMark> road_marks;
 };
 
 struct Lane
 {
   idx_t left_boundary;
   idx_t right_boundary;
-  std::vector<std::pair<idx_t, idx_t>> meshes;
+  std::vector<std::pair<idx_t, idx_t>> vertices;
 };
 
 struct MapData
 {
-  std::vector<std::vector<QPointF>> lane_boundaries;
+  std::vector<Boundary> lane_boundaries;
   std::vector<Lane> lanes;
   carla::geom::Mesh mesh;
 };
