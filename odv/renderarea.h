@@ -74,8 +74,6 @@ public:
     QSize sizeHint() const override;
 
 public slots:
-    void zoomIn();
-    void zoomOut();
 
 protected:
     void wheelEvent(QWheelEvent * event) override;

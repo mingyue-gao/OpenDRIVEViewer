@@ -43,20 +43,22 @@ MapData load_map(const std::string& map_path)
   {
     for (const auto& ls : r.second.GetLaneSections())
     {
+      std::size_t lb_idx = map_data.lane_boundaries.size();
       for (const auto& l_pair : ls.GetLanes())
       {
         const auto& l = l_pair.second;
+        if (l.GetId() == 0)
+          continue;
+
         if (l.GetType() != road::Lane::LaneType::Driving)
           continue;
 
         const auto lane_meshes = mesh_factory.Generate(l);
         const auto& vertices = lane_meshes->GetVertices();
         auto n = vertices.size();
-        // std::cout << "printing " << l.GetId() << ", " << n << std::endl;
         assert(n % 2 == 0);
         int step = 2;
         std::vector<QPointF> lb(n / step);
-        // Eigen::Matrix3Xd lb(3, n / step);
         std::size_t i = l.GetId() < 0 ? 0 : 1;
         for (; i < n; i += step)
         {
@@ -76,6 +78,38 @@ MapData load_map(const std::string& map_path)
           }
           map_data.lane_boundaries.push_back(mlb);
         }
+      }
+
+      for (const auto& l_pair : ls.GetLanes())
+      {
+        const auto& l = l_pair.second;
+        if (l.GetId() == 0)
+          continue;
+
+        if (l.GetType() != road::Lane::LaneType::Driving)
+          continue;
+
+        Lane the_lane;
+        auto right_idx = lb_idx;
+        auto left_idx = lb_idx + 1;
+        the_lane.right_boundary = lb_idx;
+        the_lane.left_boundary = lb_idx + 1;
+
+        auto& lane_bs = map_data.lane_boundaries;
+        auto& right_b = lane_bs[right_idx];
+        auto& left_b = lane_bs[left_idx];
+        auto n = right_b.size();
+        std::vector<std::pair<idx_t, idx_t>> lane_meshes;
+        for (std::size_t i = 0; i < n; ++i)
+        {
+          lane_meshes.emplace_back(right_idx, i);
+          lane_meshes.emplace_back(left_idx, i);
+        }
+        the_lane.meshes = lane_meshes;
+
+        assert(lb_idx + 1 < map_data.lane_boundaries.size());
+        ++lb_idx;
+        map_data.lanes.push_back(the_lane);
       }
     }
   }

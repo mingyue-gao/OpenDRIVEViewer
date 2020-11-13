@@ -8,9 +8,24 @@
 
 namespace odv {
 
+using idx_t = std::size_t;
+
+struct Boundary
+{
+
+};
+
+struct Lane
+{
+  idx_t left_boundary;
+  idx_t right_boundary;
+  std::vector<std::pair<idx_t, idx_t>> meshes;
+};
+
 struct MapData
 {
   std::vector<std::vector<QPointF>> lane_boundaries;
+  std::vector<Lane> lanes;
   carla::geom::Mesh mesh;
 };
 
